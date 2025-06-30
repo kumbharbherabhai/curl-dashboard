@@ -21,7 +21,8 @@ It’s useful for developers, testers, or network engineers who want to automate
 
 📋 Built-in code snippet viewer with copy-to-clipboard option
 
-🛠 Technologies Used:
+# Technologies Used:
+
 Python 3
 
 Tkinter – For GUI components
@@ -32,7 +33,8 @@ shlex – To safely parse command-line strings
 
 io.BytesIO – To buffer responses in memory
 
-🖥️ GUI Overview:
+# GUI Overview:
+
 Input:
 
 cURL Command
