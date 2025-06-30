@@ -1,10 +1,12 @@
-Project Name: cURL Request Dashboard GUI
-🔧 Description:
-The cURL Request Dashboard is a Python-based desktop GUI application built with Tkinter and powered by pycurl, designed to repeatedly execute cURL commands, validate responses, and display the progress interactively.
+# Project Name: cURL Request Dashboard GUI
+
+# Description:
+
+       The cURL Request Dashboard is a Python-based desktop GUI application built with Tkinter and powered by pycurl, designed to repeatedly execute cURL commands, validate responses, and display the progress interactively.
 
 It’s useful for developers, testers, or network engineers who want to automate repeated API/URL requests and monitor whether expected content appears in the response.
 
-🚀 Features:
+# Features:
 ✅ Accepts full curl command input (with headers, method, data)
 
 🔁 Runs request multiple times (looped iterations)
