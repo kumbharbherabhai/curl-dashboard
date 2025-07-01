@@ -3,6 +3,7 @@ import requests
 import shlex
 import time
 
+
 def parse_curl_command(curl_cmd):
     try:
         args = shlex.split(curl_cmd)
