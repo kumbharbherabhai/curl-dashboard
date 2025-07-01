@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, scrolledtext, Toplevel, messagebox
-import pycurl
-import io
+import requests
 import shlex
 import time
 
@@ -27,7 +26,7 @@ class CurlDashboard:
         tk.Label(self.root, text="Number of Iterations:").grid(row=2, column=0, padx=5, pady=5, sticky="w")
         self.iterations_entry = tk.Entry(self.root, width=10)
         self.iterations_entry.grid(row=2, column=1, sticky="w", padx=5, pady=5)
-        self.iterations_entry.insert(0, "50")
+        self.iterations_entry.insert(0, "10")
 
         self.execute_button = tk.Button(self.root, text="Execute", command=self.execute_curl)
         self.execute_button.grid(row=3, column=0, padx=5, pady=10)
@@ -105,38 +104,18 @@ class CurlDashboard:
                 self.output_text.insert(tk.END, "Execution stopped by user\n")
                 break
             try:
-                buffer = io.BytesIO()
-                c = pycurl.Curl()
-                c.setopt(c.URL, url)
-                c.setopt(c.WRITEDATA, buffer)
-                c.setopt(c.FOLLOWLOCATION, True)
-
-                if method == "POST":
-                    c.setopt(c.POST, 1)
-                    if data:
-                        c.setopt(c.POSTFIELDS, data)
-                elif method != "GET":
-                    c.setopt(c.CUSTOMREQUEST, method)
-
-                if headers:
-                    c.setopt(c.HTTPHEADER, [f"{k}: {v}" for k, v in headers.items()])
-
-                c.perform()
-                status_code = c.getinfo(c.RESPONSE_CODE)
-                response = buffer.getvalue().decode("utf-8")
-                c.close()
-
-                status = "OK" if expected_text in response else "FAIL"
+                response = requests.request(method, url, headers=headers, data=data)
+                status_code = response.status_code
+                text = response.text
+                status = "OK" if expected_text in text else "FAIL"
                 self.output_text.insert(tk.END, f"Iteration {i + 1}/{iterations}: {status} (Status Code: {status_code})\n")
-                self.output_text.see(tk.END)
-                self.progress["value"] = i + 1
-                self.root.update()
-                time.sleep(0.1)
             except Exception as e:
                 self.output_text.insert(tk.END, f"Iteration {i + 1}/{iterations}: Error - {str(e)}\n")
-                self.output_text.see(tk.END)
-                self.progress["value"] = i + 1
-                self.root.update()
+
+            self.output_text.see(tk.END)
+            self.progress["value"] = i + 1
+            self.root.update()
+            time.sleep(0.1)
 
         self.execute_button.config(state="normal")
         self.stop_button.config(state="disabled")
@@ -146,8 +125,7 @@ class CurlDashboard:
 
     def show_code_snippet(self):
         code = '''
-import pycurl
-import io
+import requests
 import shlex
 
 def execute_curl(curl_cmd, expected_text, iterations):
@@ -155,7 +133,6 @@ def execute_curl(curl_cmd, expected_text, iterations):
         args = shlex.split(curl_cmd)
         if args[0].lower() != "curl":
             raise ValueError("Command must start with 'curl'")
-
         url, method, headers, data = None, "GET", {}, None
         i = 1
         while i < len(args):
@@ -173,35 +150,19 @@ def execute_curl(curl_cmd, expected_text, iterations):
                 i += 1
                 data = args[i]
             i += 1
-
         if not url:
             raise ValueError("No URL found in cURL command")
 
         for i in range(iterations):
-            buffer = io.BytesIO()
-            c = pycurl.Curl()
-            c.setopt(c.URL, url)
-            c.setopt(c.WRITEDATA, buffer)
-            c.setopt(c.FOLLOWLOCATION, True)
-            if method == "POST":
-                c.setopt(c.POST, 1)
-                if data:
-                    c.setopt(c.POSTFIELDS, data)
-            elif method != "GET":
-                c.setopt(c.CUSTOMREQUEST, method)
-            if headers:
-                c.setopt(c.HTTPHEADER, [f"{k}: {v}" for k, v in headers.items()])
-            c.perform()
-            status_code = c.getinfo(c.RESPONSE_CODE)
-            response = buffer.getvalue().decode("utf-8")
-            c.close()
-            status = "OK" if expected_text in response else "FAIL"
+            response = requests.request(method, url, headers=headers, data=data)
+            status_code = response.status_code
+            status = "OK" if expected_text in response.text else "FAIL"
             print(f"Iteration {i+1}/{iterations}: {status} (Status Code: {status_code})")
     except Exception as e:
         print(f"Error: {str(e)}")
 
 # Example usage
-execute_curl("curl https://example.com", "Example Domain", 50)
+execute_curl("curl https://example.com", "Example Domain", 10)
 '''
         snippet_window = Toplevel(self.root)
         snippet_window.title("Code Snippet")
