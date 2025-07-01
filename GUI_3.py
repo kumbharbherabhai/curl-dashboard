@@ -76,16 +76,15 @@ if run_button:
 
 # Code snippet section
 with st.expander("📄 Show Python Code Snippet"):
-    code_snippet = '''
-import requests
+    code_snippet = f'''import requests
 import shlex
 
-def execute_curl(curl_cmd, expected_text, iterations):
+def execute_curl(curl_cmd="{curl_cmd}", expected_text="{expected_text}", iterations={iterations}):
     args = shlex.split(curl_cmd)
     if args[0].lower() != "curl":
         raise ValueError("Command must start with 'curl'")
 
-    url, method, headers, data = None, "GET", {}, None
+    url, method, headers, data = None, "GET", {{}}, None
     i = 1
     while i < len(args):
         if args[i].startswith("http"):
@@ -110,9 +109,9 @@ def execute_curl(curl_cmd, expected_text, iterations):
         response = requests.request(method, url, headers=headers, data=data)
         status_code = response.status_code
         status = "OK" if expected_text in response.text else "FAIL"
-        print(f"Iteration {i+1}/{iterations}: {status} (Status Code: {status_code})")
+        print(f"Iteration {{i+1}}/{{iterations}}: {{status}} (Status Code: {{status_code}})")
 
 # Example usage
-execute_curl("curl https://example.com", "Example Domain", 50)
+execute_curl()
 '''
     st.code(code_snippet, language="python")
